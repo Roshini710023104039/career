@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Course Learning</title>
+
+<style>
+body{
+    font-family:"Segoe UI", Arial, sans-serif;
+    background:#f4f6f8;
+    padding:40px;
+}
+
+.box{
+    background:white;
+    padding:30px;
+    max-width:900px;
+    margin:auto;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.12);
+}
+
+.breadcrumb{
+    font-size:14px;
+    color:#6b7280;
+    margin-bottom:10px;
+}
+
+.course-img{
+    width:100%;
+    height:280px;
+    object-fit:cover;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+#title{
+    font-size:32px;
+    color:#1e90ff;
+}
+
+.meta{
+    display:flex;
+    gap:25px;
+    font-size:15px;
+    margin-bottom:20px;
+}
+
+.progress-box{
+    background:#f1f5f9;
+    padding:15px;
+    border-radius:10px;
+}
+
+.progress-bar{
+    height:10px;
+    background:#e5e7eb;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:8px;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:#1e90ff;
+    transition:0.4s;
+}
+
+.instructor{
+    display:flex;
+    gap:15px;
+    background:#f9fafb;
+    padding:15px;
+    border-radius:10px;
+    margin:25px 0;
+}
+
+.instructor img{
+    width:55px;
+    border-radius:50%;
+}
+
+.topics{
+    list-style:none;
+    padding:0;
+    font-size:18px;
+}
+
+.topics li{
+    padding:10px;
+    cursor:pointer;
+    border-radius:8px;
+}
+
+.topics li.active{
+    background:#1e90ff;
+    color:white;
+}
+
+.topic-content{
+    margin-top:20px;
+    padding:20px;
+    background:#f9fafb;
+    border-radius:10px;
+}
+
+button{
+    margin-top:25px;
+    padding:12px 22px;
+    font-size:16px;
+    background:#1e90ff;
+    color:white;
+    border:none;
+    border-radius:6px;
+}
+
+button:disabled{
+    background:#9ca3af;
+}
+
+/* JOB SECTION */
+.jobs{
+    margin-top:40px;
+}
+
+.job-card{
+    background:#f9fafb;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:15px;
+}
+
+.job-card h4{
+    margin:0;
+    color:#1e90ff;
+}
+
+/* CERTIFICATE */
+.certificate{
+    margin-top:40px;
+    padding:40px;
+    border-radius:14px;
+    text-align:center;
+    display:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)),
+      url("https://images.unsplash.com/photo-1524995997946-a1c2e315a42f");
+    background-size:cover;
+    border:4px solid #1e90ff;
+}
+
+.certificate img{
+    width:120px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<div class="breadcrumb">Home / My Courses / Course Learning</div>
+
+<img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3" class="course-img">
+
+<h2 id="title"></h2>
+
+<div class="meta">
+    <div>⏱ 4 Hours</div>
+    <div>📈 Beginner</div>
+    <div>🌐 English</div>
+</div>
+
+<div class="progress-box">
+    Progress: <strong><span id="progressText">0%</span></strong>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+</div>
+
+<div class="instructor">
+    <img src="https://randomuser.me/api/portraits/men/32.jpg">
+    <div>
+        <h4>John Smith</h4>
+        <p>Senior Trainer</p>
+    </div>
+</div>
+
+<h3>📚 Course Content</h3>
+
+<ul class="topics">
+    <li class="active" onclick="showContent(0,this)">Introduction</li>
+    <li onclick="showContent(1,this)">Core Concepts</li>
+    <li onclick="showContent(2,this)">Practical Examples</li>
+    <li onclick="showContent(3,this)">Hands-on Practice</li>
+</ul>
+
+<div class="topic-content" id="contentBox"></div>
+
+<button id="certBtn" onclick="showCertificate()" disabled>
+🔒 Certificate Locked (80%)
+</button>
+
+<!-- JOB OPPORTUNITIES -->
+<div class="jobs">
+    <h3>💼 Career Opportunities</h3>
+    <div id="jobList"></div>
+</div>
+
+<!-- CERTIFICATE -->
+<div class="certificate" id="certificate">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Graduation_cap_icon.svg/512px-Graduation_cap_icon.svg.png">
+    <h2>Certificate of Completion</h2>
+    <p>This certifies that</p>
+    <h3 id="studentName">Learner</h3>
+    <p>has completed</p>
+    <h3 id="courseName"></h3>
+    <p>Date: <span id="date"></span></p>
+    <!-- Download PDF Button -->
+    <button id="downloadCertBtn" onclick="downloadCertificate()" style="margin-top:20px; background:#10b981;">
+    📄 Download PDF
+    </button>
+</div>
+
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+let course = localStorage.getItem("currentCourse") || "Web Development Basics";
+document.getElementById("title").innerText = course;
+
+// Bullet points for each topic
+let contents = [];
+
+if(course.toLowerCase().includes("python")){
+    contents = [
+        `<ul>
+            <li>Overview of Python and its applications</li>
+            <li>Installing Python and setting up environment</li>
+            <li>Variables, data types, and operators</li>
+            <li>Writing basic Python scripts</li>
+        </ul>`,
+        `<ul>
+            <li>Control flow: if-else statements, loops</li>
+            <li>Functions and modules</li>
+            <li>Data structures: lists, tuples, dictionaries, sets</li>
+            <li>Error handling and debugging basics</li>
+        </ul>`,
+        `<ul>
+            <li>Practical examples like calculator and string manipulations</li>
+            <li>File handling operations</li>
+            <li>Simple automation scripts</li>
+        </ul>`,
+        `<ul>
+            <li>Mini project: To-do app or automation task</li>
+            <li>Practice exercises to reinforce concepts</li>
+        </ul>`
+    ];
+}else{ // Web Development
+    contents = [
+        `<ul>
+            <li>Introduction to Web Development</li>
+            <li>Frontend vs Backend overview</li>
+            <li>Setting up development environment (VSCode, browser tools)</li>
+            <li>Understanding basic HTML structure</li>
+        </ul>`,
+        `<ul>
+            <li>HTML: tags, forms, links, images, tables</li>
+            <li>CSS: selectors, box model, flexbox, grid, styling basics</li>
+            <li>JavaScript: variables, functions, events, DOM manipulation</li>
+            <li>Responsive design basics</li>
+        </ul>`,
+        `<ul>
+            <li>Building a sample website layout</li>
+            <li>Adding interactivity with JavaScript</li>
+            <li>Implementing forms and input validation</li>
+        </ul>`,
+        `<ul>
+            <li>Mini project: Personal portfolio website</li>
+            <li>Practice exercises: small interactive components</li>
+        </ul>`
+    ];
+}
+
+let jobs = {
+    web: [
+        "Frontend Developer",
+        "Web Designer",
+        "UI Developer",
+        "Junior Full Stack Developer"
+    ],
+    python: [
+        "Python Developer",
+        "Backend Developer",
+        "Automation Engineer"
+    ],
+    data: [
+        "Data Analyst",
+        "Business Analyst",
+        "Junior Data Scientist"
+    ]
+};
+
+let completed=[false,false,false,false];
+let progress=0;
+
+function showContent(i,el){
+    document.getElementById("contentBox").innerHTML = contents[i];
+    if(!completed[i]){
+        completed[i]=true;
+        progress+=25;
+        updateProgress();
+    }
+    document.querySelectorAll(".topics li").forEach(li=>li.classList.remove("active"));
+    el.classList.add("active");
+}
+
+function updateProgress(){
+    progress=Math.min(progress,100);
+    document.getElementById("progressText").innerText=progress+"%";
+    document.getElementById("progressFill").style.width=progress+"%";
+    if(progress>=80){
+        certBtn.disabled=false;
+        certBtn.innerText="🎓 Get Certificate";
+    }
+}
+
+function showCertificate(){
+    certificate.style.display="block";
+    studentName.innerText=localStorage.getItem("username")||"Learner";
+    courseName.innerText=course;
+    date.innerText=new Date().toDateString();
+}
+
+function loadJobs(){
+    let key = course.toLowerCase().includes("python") ? "python" :
+              course.toLowerCase().includes("data") ? "data" : "web";
+
+    let html="";
+    jobs[key].forEach(j=>{
+        html+=`<div class="job-card"><h4>${j}</h4><p>Entry-level role suitable after completing this course.</p></div>`;
+    });
+    document.getElementById("jobList").innerHTML=html;
+}
+
+loadJobs();
+
+// Download PDF Function
+function downloadCertificate(){
+    const certificateDiv = document.getElementById("certificate");
+    html2canvas(certificateDiv, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL("image/png");
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: "landscape",
+            unit: "px",
+            format: [canvas.width, canvas.height]
+        });
+        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+        pdf.save(`${course}_Certificate.pdf`);
+    });
+}
+</script>
+
+</body>
+</html>
